@@ -6,6 +6,10 @@ from helpers.parseLink import parse_link
 import re
 import time
 import json
+import datetime
+
+def dtm():
+    return datetime.datetime.now()
 
 TG_KEY = None
 try:
@@ -14,14 +18,18 @@ try:
     TG_KEY = str(data['TG_KEY'])
     f.close()
 except:
-    print('Error TG_KEY')
-    
+    print (dtm(), 'Error TG_KEY','\n')
+
+
 bot = telebot.TeleBot(TG_KEY)
 TOKEN = ''
+
+print(dtm(), 'BOT STARTED','\n')
 
 @bot.message_handler(commands=['start'])
 def start(message):
     time.sleep(2)
+    print(dtm(), 'User', message.from_user.id,'start talk with bot','\n')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup2 = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("/start")
@@ -72,8 +80,8 @@ def prefs(message):
 def get_text_messages(message):
     time.sleep(2)
     if message.text == 'Удалить TOKEN' and get_token_by_id(message.from_user.id) != 'none':
-        print('user', message.from_user.id, 'want to edit token')
-        print(message.from_user.id, 'start delete TOKEN')
+        print(dtm(), 'user', message.from_user.id, 'want to edit token','\n')
+        print(dtm(), message.from_user.id, 'start delete TOKEN','\n')
         del_token(str(message.from_user.id)+';'+ str(get_token_by_id(message.from_user.id)), message)
         
     if message.text == 'Меню' and get_token_by_id(message.from_user.id) != 'none':
@@ -106,7 +114,7 @@ def get_input_token(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('Меню')
     markup.add(btn1)
-    print('message.chat.id:', message.chat.id,'message.message_id' ,message.message_id)
+    # print(dtm(), 'message.chat.id:', message.chat.id,'message.message_id' ,message.message_id)
     TOKEN = str(message.text)
     try:
         state = write_token(message.from_user.id, TOKEN)
@@ -118,7 +126,7 @@ def get_input_token(message):
     except: 
         time.sleep(1)
         bot.delete_message(message.chat.id, message.message_id)
-        print('Eror add token')
+        print(dtm(), 'Eror add token','\n')
       
 def write_token(id: str, token: str):
     to_inc = str(id) + ';' + str(token) + ';\n'
@@ -127,10 +135,10 @@ def write_token(id: str, token: str):
         f = open('./bot/id_token.txt','a')
         f.write(to_inc)
         f.close()
-        print('New user', id, 'added')
+        print(dtm(), 'New user', id, 'added','\n')
         return True
     elif (is_in_id_token(id) == True):
-        print(id, ' already in base!')
+        print(dtm(), id, ' already in base!','\n')
         return False
     # f = open('./bot/id_token.txt','r')    
     # print('after: \n', f.readlines())
@@ -168,7 +176,7 @@ def get_pl(TOKEN: str):
             to_return = to_return +str(playlists[i]['title']) + ', ' + str(playlists[i]['kind']) + '\n'
         return to_return
     except:
-        print('Error watch playlist')
+        print(dtm(), 'Error watch playlist','\n')
         return '❗️ Ошибка, не могу чекнуть плейлисты, отправь корректный TOKEN'
 
 def add_tr_handler(message):
@@ -181,7 +189,7 @@ def add_tr_handler(message):
         bot.send_message(message.from_user.id, str(answ), reply_markup=markup)
     except: 
         bot.send_message(message.from_user.id, '❗️ Введи корректную ссылку, как в примере' , reply_markup=markup)
-        print('ERROR parse link:', message.text)
+        print(dtm(), 'ERROR parse link:', message.text,'\n')
     
       
 def add_tr(TOKEN, parsed_link):
@@ -208,13 +216,15 @@ def del_token(key_todel: str, message):
                     arch_del.append(result)
                 if result is None:
                     f.write(line)
-        print('keys was deleted:\n', arch_del)
+        print(dtm(), 'keys was deleted:\n', arch_del,'\n')
         bot.send_message(message.from_user.id, '⚠️ Твой TOKEN удален!')
     except:
         bot.send_message(message.from_user.id, '❗️ Ошибка удаления TOKEN')
-        print('ERROR to del TOKEN')
+        print(dtm(), 'ERROR to del TOKEN','\n')
+
 
 bot.polling() #обязательная для работы бота часть
+print(dtm(), 'BOT DOWN','\n')
 
 
 
