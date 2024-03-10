@@ -3,3 +3,4 @@ bot/__pycache__
 bot/options.py
 __pycache__
 .DS_Store
+.gitignore
