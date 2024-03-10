@@ -1,4 +1,5 @@
 bot/helpers/__pycache__
-bot/id_token.txt
-bot/tg_key.json
+bot/__pycache__
+bot/options.py
+__pycache__
 .DS_Store
