@@ -11,5 +11,4 @@ def parse_link(link: str) -> list:
         return {'track_id': str(track_id), 
             'album_id': str(album_id)}
     except:
-        print(dttm(), 'ERROR to parse link')
         return None
