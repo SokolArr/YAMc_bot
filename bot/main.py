@@ -107,8 +107,6 @@ def get_text_messages(message):
     if message.text[0:9] == '@YAMc_bot' and message.date > bot_time_start:
         mes_txt = message.text[10:]
         tg_usr_id = message.chat.id
-        
-        print(dttm(), tg_usr_id, mes_txt)
 
         try:
             sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
