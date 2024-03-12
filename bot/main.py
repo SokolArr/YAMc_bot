@@ -13,7 +13,13 @@ print(dttm(), 'BOT STARTED','\n')
 bot_time_start = time.mktime(datetime.now().timetuple())
 if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я ожил!')
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start'], chat_types=['supergroup'])
+def start(message):
+    if message.date > bot_time_start:
+        chat_id = message.chat.id
+        bot.send_message(chat_id, "👋 Привет! Я могу сделать общий плейлист в Яндекс Музыке!\n Чтобы узнать как введи /help")
+        
+@bot.message_handler(commands=['start'], chat_types=['private'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.from_user.id
