@@ -10,40 +10,27 @@ from options import *
 bot = telebot.TeleBot(TG_KEY)
 
 print(dttm(), 'BOT STARTED','\n')
-bot_time_start = time.mktime(dttm().timetuple())
+bot_time_start = time.mktime(datetime.now().timetuple())
+if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я ожил!')
 
 @bot.message_handler(commands=['start'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.from_user.id
-        print(dttm(), 'User', chat_id, 'start talk with bot','\n')
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("/start")
-        
-        markup.add(btn1)
-        bot.send_message(chat_id, "👋 Привет! Я тут за музыку Яндекса шарю!\n Чтобы узнать комманды введи /help") 
+        bot.send_message(chat_id, "👋 Привет! Я могу сделать общий плейлист в Яндекс Музыке!\n Чтобы узнать как введи /help") 
     
 @bot.message_handler(commands=['help'], chat_types=['supergroup'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
-        print(dttm(), 'User', chat_id, 'start talk with bot','\n')
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("/help")
-        
-        markup.add(btn1)
         bot.send_message(chat_id, "Чтобы обратиться ко мне в беседе начни фразу с @YAMc_bot, а потом отправь ссылку на трек\nНапример: @YAMc_bot https://music.yandex.ru/album/29998108/track/123237014")
-
+        bot.send_message(chat_id, "Я понимаю команды:\n_дай ссылку_ - вернет ссылку на плейлист\n_удали плейлист_ - удалит плейлист\n_создай плейлист_ - создаст плейлист", parse_mode= 'Markdown')
 @bot.message_handler(commands=['help'], chat_types=['private'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.from_user.id
-        print(dttm(), 'User', chat_id, 'start talk with bot','\n')
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("/help")
-        
-        markup.add(btn1)
-        bot.send_message(chat_id, "Отправь мне ссылку на трек в формате\n https://music.yandex.ru/album/29998108/track/123237014")
+        bot.send_message(chat_id, "Отправь мне ссылку на трек в формате\nhttps://music.yandex.ru/album/29998108/track/123237014")
+        bot.send_message(chat_id, "Я понимаю команды:\n_дай ссылку_ - вернет ссылку на плейлист\n_удали плейлист_ - удалит плейлист\n_создай плейлист_ - создаст плейлист", parse_mode= 'Markdown')
 
 @bot.message_handler(chat_types=['private'])
 def get_text_messages(message):
@@ -51,35 +38,63 @@ def get_text_messages(message):
         mes_txt = message.text
         tg_usr_id = message.from_user.id
         
-        print(dttm(), tg_usr_id, mes_txt)
         try:
-            if(parse_link(mes_txt)):
-                album_id = parse_link(mes_txt)['album_id']
-                track_id = parse_link(mes_txt)['track_id']
-                
-                sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
-                playlist_title = str(sha_tg_usr_id + '_all')
-                
+            sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
+            playlist_title = str(sha_tg_usr_id + '_all')
+        except:
+            bot.send_message(tg_usr_id, "Ошибка в генерации хеша")  
+            print(dttm(), tg_usr_id, ' - ERROR to get hash')
+            return
+        
+        if(mes_txt.lower().find('дай ссылку') >= 0):
+            try:
+                url = get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                bot.send_message(tg_usr_id, "Держи\n" + url)
+            except:
+                bot.send_message(tg_usr_id, "Не нашел твой плейлист! Попробуй создать его,\nпопроси добавить трек:\nВведи /help для помощи")
+        elif(mes_txt.lower().find('удали плейлист') >= 0):
+            try:
+                drop_playlist(TOKEN, YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                bot.send_message(tg_usr_id, "Удалил!\n")
+            except:
+                bot.send_message(tg_usr_id, "Нечего удалять! Сначала надо его создать,\nпопроси добавить трек:\nВведи /help для помощи")
+        elif(mes_txt.lower().find('создай плейлист') >= 0):
+            try:
                 if(if_in_playlists_by_title(TOKEN, YA_USR_ID, playlist_title) == 0):
                     new_playlist_id = create_playlist(TOKEN, YA_USR_ID, playlist_title)
                     url = get_playlist_url(YA_USR_ID, new_playlist_id)
-                    
-                    add_track_to_playlist(TOKEN, YA_USR_ID, new_playlist_id, album_id, track_id)
-                    print(dttm(), tg_usr_id, '|', sha_tg_usr_id, 'add new track', track_id, 'from album', album_id, 'in playlist', new_playlist_id)
-                    
-                    bot.send_message(tg_usr_id, "У тебя не было общего плейлиста, я создал его и закинул туда трек\n" + url)
+                    bot.send_message(tg_usr_id, "Создал плейлист!\n" + url)
                 else:
-                    playlist_id = get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)
+                    url = get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                    bot.send_message(tg_usr_id, "Плейлист уже создан!\n" + url) 
+            except:
+                bot.send_message(tg_usr_id, "Ошибка в создании плейлиста")
+                print(dttm(), tg_usr_id, ' - ERROR to create playlist')
+        elif(mes_txt.lower().find('https') >= 0):
+            try:
+                if(parse_link(mes_txt)):
+                    album_id = parse_link(mes_txt)['album_id']
+                    track_id = parse_link(mes_txt)['track_id']
                     
-                    add_track_to_playlist(TOKEN, YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title), album_id, track_id)
-                    print(dttm(), tg_usr_id, '|', sha_tg_usr_id, 'add new track', track_id, 'from album', album_id, 'in playlist', playlist_id)
+                    sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
+                    playlist_title = str(sha_tg_usr_id + '_all')
                     
-                    bot.send_message(tg_usr_id, "Закинул трек в плейлист\n" + get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)))
-            else:
-                print(dttm(), tg_usr_id, 'bad link')
-                bot.send_message(tg_usr_id, "Не могу спарсить ссылку, проверь корректность\n")  
-        except:
-            print(dttm(), 'ERROR add track by usr:', tg_usr_id)
+                    if(if_in_playlists_by_title(TOKEN, YA_USR_ID, playlist_title) == 0):
+                        new_playlist_id = create_playlist(TOKEN, YA_USR_ID, playlist_title)
+                        url = get_playlist_url(YA_USR_ID, new_playlist_id)
+                        
+                        add_track_to_playlist(TOKEN, YA_USR_ID, new_playlist_id, album_id, track_id)
+                        bot.send_message(tg_usr_id, "У тебя не было общего плейлиста, я создал его и закинул туда трек\n" + url)
+                    else:
+                        playlist_id = get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)
+                        
+                        add_track_to_playlist(TOKEN, YA_USR_ID, playlist_id, album_id, track_id)
+                        bot.send_message(tg_usr_id, "Закинул трек в плейлист\n" + get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)))
+                else:
+                    print(dttm(), tg_usr_id, '- ERROR parse link')
+                    bot.send_message(tg_usr_id, "Не могу спарсить ссылку, проверь корректность\n")  
+            except:
+                print(dttm(), tg_usr_id, '- ERROR add track')
         
 @bot.message_handler(content_types=['text'], chat_types=['supergroup'])
 def get_text_messages(message):
@@ -88,35 +103,66 @@ def get_text_messages(message):
         tg_usr_id = message.chat.id
         
         print(dttm(), tg_usr_id, mes_txt)
+
         try:
-            if(parse_link(mes_txt)):
-                album_id = parse_link(mes_txt)['album_id']
-                track_id = parse_link(mes_txt)['track_id']
-                
-                sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
-                playlist_title = str(sha_tg_usr_id + '_all')
-                
+            sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
+            playlist_title = str(sha_tg_usr_id + '_all')
+        except:
+            bot.send_message(tg_usr_id, "Ошибка в генерации хеша")  
+            print(dttm(), tg_usr_id, ' - ERROR to get hash')
+            return
+        
+        if(mes_txt.lower().find('дай ссылку') >= 0):
+            try:
+                url = get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                bot.send_message(tg_usr_id, "Держи\n" + url)
+            except:
+                bot.send_message(tg_usr_id, "Не нашел твой плейлист! Попробуй создать его,\nпопроси добавить трек:\nВведи /help для помощи")
+        elif(mes_txt.lower().find('удали плейлист') >= 0):
+            try:
+                drop_playlist(TOKEN, YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                bot.send_message(tg_usr_id, "Удалил!\n")
+            except:
+                bot.send_message(tg_usr_id, "Нечего удалять! Сначала надо его создать,\nпопроси добавить трек:\nВведи /help для помощи")
+        elif(mes_txt.lower().find('создай плейлист') >= 0):
+            try:
                 if(if_in_playlists_by_title(TOKEN, YA_USR_ID, playlist_title) == 0):
                     new_playlist_id = create_playlist(TOKEN, YA_USR_ID, playlist_title)
                     url = get_playlist_url(YA_USR_ID, new_playlist_id)
-                    
-                    add_track_to_playlist(TOKEN, YA_USR_ID, new_playlist_id, album_id, track_id)
-                    print(dttm(), tg_usr_id, '|', sha_tg_usr_id, 'add new track', track_id, 'from album', album_id, 'in playlist', new_playlist_id)
-                    
-                    bot.send_message(tg_usr_id, "Не было общего плейлиста, я создал его и закинул туда трек\n" + url)
+                    bot.send_message(tg_usr_id, "Создал плейлист!\n" + url)
                 else:
-                    playlist_id = get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)
+                    url = get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title))
+                    bot.send_message(tg_usr_id, "Плейлист уже создан!\n" + url) 
+            except:
+                bot.send_message(tg_usr_id, "Ошибка в создании плейлиста")
+                print(dttm(), tg_usr_id, ' - ERROR to create playlist')
+        elif(mes_txt.lower().find('https') >= 0):
+            try:
+                if(parse_link(mes_txt)):
+                    album_id = parse_link(mes_txt)['album_id']
+                    track_id = parse_link(mes_txt)['track_id']
                     
-                    add_track_to_playlist(TOKEN, YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title), album_id, track_id)
-                    print(dttm(), tg_usr_id, '|', sha_tg_usr_id, 'add new track', track_id, 'from album', album_id, 'in playlist', playlist_id)
+                    sha_tg_usr_id = hashlib.shake_256(str(tg_usr_id).encode('utf-8')).hexdigest(5)
+                    playlist_title = str(sha_tg_usr_id + '_all')
                     
-                    bot.send_message(tg_usr_id, "Закинул трек в плейлист\n" + get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)))
-            else:
-                print(dttm(), tg_usr_id, 'bad link')
-                bot.send_message(tg_usr_id, "Не могу спарсить ссылку, проверь корректность\n")  
-        except:
-            print(dttm(), 'ERROR add track by usr:', tg_usr_id)
+                    if(if_in_playlists_by_title(TOKEN, YA_USR_ID, playlist_title) == 0):
+                        new_playlist_id = create_playlist(TOKEN, YA_USR_ID, playlist_title)
+                        url = get_playlist_url(YA_USR_ID, new_playlist_id)
+                        
+                        add_track_to_playlist(TOKEN, YA_USR_ID, new_playlist_id, album_id, track_id)
+                        bot.send_message(tg_usr_id, "Не было общего плейлиста, я создал его и закинул туда трек\n" + url)
+                    else:
+                        playlist_id = get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)
+                        
+                        add_track_to_playlist(TOKEN, YA_USR_ID, playlist_id, album_id, track_id)
+                        bot.send_message(tg_usr_id, "Закинул трек в плейлист\n" + get_playlist_url(YA_USR_ID, get_playlist_id_by_title(TOKEN, YA_USR_ID, playlist_title)))
+                else:
+                    print(dttm(), tg_usr_id, '- ERROR parse link')
+                    bot.send_message(tg_usr_id, "Не могу спарсить ссылку, проверь корректность\n")  
+            except:
+                print(dttm(), tg_usr_id, '- ERROR add track')
         
     
 bot.polling()
+if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я прилег!')
 print(dttm(), 'BOT DOWN','\n')

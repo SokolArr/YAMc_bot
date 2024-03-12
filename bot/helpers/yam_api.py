@@ -2,8 +2,8 @@ import requests
 from datetime import datetime
 from helpers.yam_link_parser import *
 
-def dttm() -> datetime:
-    return datetime.now()
+def dttm() -> str:
+    return  str(datetime.now()) + ' | '
 
 # Создать плейлист
 def create_playlist(token: str, ya_usr_id: str, title: str, visibility = 'public') -> str:
@@ -75,7 +75,7 @@ def get_playlists(token: str, ya_usr_id: str) -> list:
                 result_array.append(playlist)
             return result_array
         else:
-            print(dttm(), 'No playslists')
+            # print(dttm(), 'No playslists')
             return []
         
     except:
