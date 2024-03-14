@@ -169,6 +169,8 @@ if __name__ == "__main__":
         bot_time_start = time.mktime(datetime.now().timetuple())
         if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я ожил!')
         bot.polling()
+        print(dttm(), 'BOT DOWN','\n')
+        if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я прилег! ')
     except Exception as e:
         if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я прилег! ' + str(e))
         print(dttm(), 'BOT DOWN','\n')
