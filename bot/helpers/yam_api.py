@@ -3,13 +3,12 @@ from datetime import datetime
 from helpers.yam_link_parser import *
 
 def dttm() -> str:
-    return  str(datetime.now()) + ' | '
+    return str(datetime.now()) + ' | '
 
 # Создать плейлист
 def create_playlist(token: str, ya_usr_id: str, title: str, visibility = 'public') -> str:
     base_api_url = 'https://api.music.yandex.net'
     req = '/users/'+ ya_usr_id + '/playlists/create'
-    
     try:
         response = requests.post(base_api_url + req, 
                                  headers = {'Authorization': 'OAuth ' + token}, 
@@ -18,29 +17,26 @@ def create_playlist(token: str, ya_usr_id: str, title: str, visibility = 'public
                                 ).json()
         playlist_title = response['result']['title']
         playlist_id = response['result']['kind']
-        
         if response['result']:
             print(dttm(), ya_usr_id, 'created playlist', playlist_id, '"' + playlist_title + '"')
             return str(response['result']['kind'])
         else:
             print(dttm(), 'ERROR no response')
-            return '-1'
+            return -1
     except:
         print(dttm(), 'ERROR no response')
-        return '-1'
+        return -1
     
     
 # Удалить плейлист
 def drop_playlist(token: str, ya_usr_id: str, playlist_id: str) -> str:
     base_api_url = 'https://api.music.yandex.net'
     req = '/users/' + ya_usr_id + '/playlists/' + playlist_id + '/delete'
-    
     try:
         response = requests.post(base_api_url + req, 
                                  headers = {'Authorization': 'OAuth ' + token}
                                 ).json()
         result = response['result']
-        
         if result:
             print(dttm(), ya_usr_id, 'delete playlist', playlist_id)
             return playlist_id
@@ -56,14 +52,11 @@ def get_playlists(token: str, ya_usr_id: str) -> list:
     base_api_url = 'https://api.music.yandex.net'
     req = '/users/' + ya_usr_id + '/playlists/' + '/list'
     result_array = []
-    
     try:
         response = requests.get(base_api_url + req,
                                 headers = {'Authorization': 'OAuth ' + token}
                             ).json()
         result = response['result']
-        
-
         if result:
             for i in range(len(result)):
                 playlist = {
@@ -75,12 +68,10 @@ def get_playlists(token: str, ya_usr_id: str) -> list:
                 result_array.append(playlist)
             return result_array
         else:
-            # print(dttm(), 'No playslists')
-            return []
-        
+            return -1
     except:
         print(dttm(), 'ERROR no response')
-        return []
+        return -1
     
 # Если существует плейлист
 def if_in_playlists(token: str, ya_usr_id: str, playlist_id: str) -> int:
@@ -104,15 +95,15 @@ def get_playlist(token: str, ya_usr_id: str, playlist_id: str) -> list:
     for i in range(len(playlists)):
         if(playlists[i]['playlist_id'] == playlist_id):
             return playlists[i]
-    return []
+    return -1
 
 # Получить плейлист
-def get_playlist_id_by_title(token: str, ya_usr_id: str, title: str) -> list:
+def get_playlist_id_by_title(token: str, ya_usr_id: str, title: str) -> str:
     playlists = get_playlists(token, ya_usr_id)
     for i in range(len(playlists)):
         if(playlists[i]['title'] == title):
             return playlists[i]['playlist_id']
-    return []
+    return ''
     
 # Получить ревизию плейлиста
 def get_revision_of_playlist(token: str, ya_usr_id: str, playlist_id: str) -> int:
@@ -124,7 +115,6 @@ def add_track_to_playlist(token: str, ya_usr_id: str, playlist_id: str, album_id
     base_api_url = 'https://api.music.yandex.net'
     req = '/users/' + ya_usr_id + '/playlists/' + playlist_id + '/change'
     diff = '[{"op": "insert", "at": 0, "tracks": [{"id":' + track_id + ', "albumId":' + album_id + '}]}]'
-    
     payload = {'kind': playlist_id, 
                'revision': revision, 
                'diff': diff
