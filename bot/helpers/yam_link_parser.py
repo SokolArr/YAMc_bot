@@ -1,9 +1,5 @@
 from urllib.parse import urlparse
-from datetime import datetime
 import re
-
-def dttm() -> str:
-    return  str(datetime.now()) + ' | '
 
 def parse_link(link: str) -> list:
     try:

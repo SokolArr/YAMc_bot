@@ -9,10 +9,6 @@ from options import *
 
 bot = telebot.TeleBot(TG_KEY)
 
-print(dttm(), 'BOT STARTED','\n')
-bot_time_start = time.mktime(datetime.now().timetuple())
-if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я ожил!')
-
 @bot.message_handler(commands=['start'], chat_types=['supergroup'])
 def start(message):
     if message.date > bot_time_start:
@@ -166,7 +162,14 @@ def get_text_messages(message):
             except:
                 print(dttm(), tg_usr_id, '- ERROR add track')
         
-    
-bot.polling()
-if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я прилег!')
-print(dttm(), 'BOT DOWN','\n')
+
+if __name__ == "__main__":
+    try:
+        print(dttm(), 'BOT STARTED','\n')
+        bot_time_start = time.mktime(datetime.now().timetuple())
+        if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я ожил!')
+        bot.polling()
+    except Exception as e:
+        if(TG_ADMIN_ID != ''):bot.send_message(TG_ADMIN_ID, 'Я прилег! ' + str(e))
+        print(dttm(), 'BOT DOWN','\n')
+        print(dttm(), e)
