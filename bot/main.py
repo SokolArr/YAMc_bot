@@ -9,7 +9,7 @@ from options import *
 
 bot = telebot.TeleBot(TG_KEY)
 
-@bot.message_handler(commands=['start'], chat_types=['supergroup'])
+@bot.message_handler(commands=['start'], chat_types=['group'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
