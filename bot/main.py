@@ -7,7 +7,7 @@ import time
 from options import *
 from creds import *
 
-g_ops = GlobalOptions(TOKEN, YA_USR_ID, TG_KEY, BOT_TAG)
+g_ops = GlobalOptions(TOKEN, YA_USR_ID, TG_KEY, BOT_TAG, TG_ADMIN_ID)
 p_chat_ops = PrivateChatOptions
 g_chat_ops = GroupChatOptions
 bot = telebot.TeleBot(g_ops.tg_key)
