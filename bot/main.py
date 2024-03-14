@@ -9,7 +9,7 @@ from options import *
 
 bot = telebot.TeleBot(TG_KEY)
 
-@bot.message_handler(commands=['start'], chat_types=['group'])
+@bot.message_handler(commands=['start'], chat_types=['supergroup', 'group'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
@@ -21,7 +21,7 @@ def start(message):
         chat_id = message.from_user.id
         bot.send_message(chat_id, "👋 Привет! Я могу сделать общий плейлист в Яндекс Музыке!\n Чтобы узнать как введи /help") 
     
-@bot.message_handler(commands=['help'], chat_types=['supergroup'])
+@bot.message_handler(commands=['help'], chat_types=['supergroup', 'group'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
@@ -98,7 +98,7 @@ def get_text_messages(message):
             except:
                 print(dttm(), tg_usr_id, '- ERROR add track')
         
-@bot.message_handler(content_types=['text'], chat_types=['supergroup'])
+@bot.message_handler(content_types=['text'], chat_types=['supergroup', 'group'])
 def get_text_messages(message):
     if message.text[0:9] == '@YAMc_bot' and message.date > bot_time_start:
         mes_txt = message.text[10:]
