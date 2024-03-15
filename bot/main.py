@@ -135,6 +135,6 @@ if __name__ == "__main__":
             if(g_ops.tg_admin_id):bot.send_message(g_ops.tg_admin_id, 'Я прилег!')
             
         except Exception as e:
-            if(g_ops.tg_admin_id):bot.send_message(g_ops.tg_admin_id, 'Я прилег! ' + str(e))
+            if(g_ops.tg_admin_id):bot.send_message(g_ops.tg_admin_id, 'Я прилег!\n' + str(e))
             print(dttm(), 'BOT DOWN','\n')
             print(dttm(), e)
