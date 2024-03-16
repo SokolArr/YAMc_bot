@@ -1,17 +1,14 @@
+from helpers.yam_api            import *
+from helpers.yam_link_parser    import *
+from helpers.utils.bot_logger   import *
 import hashlib
-from helpers.yam_api import *
-from helpers.yam_link_parser import *
 
 def bot_get_hash(var) -> str:
     return hashlib.shake_256(str(var).encode('utf-8')).hexdigest(5)
 
 def bot_concat_hash_title(var: str, postfix: str) -> str:
     return str(var + postfix)
-
-def log(global_options, chat_id = None, thread_id = None, log_message = None):
-    if(global_options.get_mode()):print(dttm(), 'chat_id:', chat_id, 'thread_id:', thread_id, 'log_message:', log_message)
-
-
+        
 # Для супергрупп
 def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options) -> str:
     # Попытка сгенерировать хеш
@@ -21,7 +18,7 @@ def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options)
         
     # Ошибка в генерации хеша    
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.hash_gen, e)
+        write_log(chat_options.ConsoleError.hash_gen, chat_id=chat_id, thread_id=thread_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.hash_gen, message_thread_id = thread_id)
         return -1
     
@@ -33,14 +30,15 @@ def bot_get_url_for_supergroup(bot, global_options, chat_id, thread_id, chat_opt
         if playlist_id != '':
             url = get_playlist_url(global_options.ya_usr_id, playlist_id)
             bot.send_message(chat_id, chat_options.Answ.get_url + url, message_thread_id = thread_id)
-            log(global_options, chat_id, thread_id, log_message = 'get url: ' + url)
+            write_log('get url: ' + url, global_options, chat_id, thread_id)
         else:
-            raise Exception("feth no playlist")
-        
-    # Ошибка нет плейлиста
+            write_log(chat_options.ConsoleError.no_playlist, global_options, chat_id, thread_id, state='Warn')
+            bot.send_message(chat_id, chat_options.ChatError.no_playlist, message_thread_id = thread_id)
+    
+    # Ошибка при получении ссылки
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.no_playlist, e)
-        bot.send_message(chat_id, chat_options.ChatError.no_playlist, message_thread_id = thread_id)
+        write_log(chat_options.ConsoleError.get_url, chat_id=chat_id, thread_id=thread_id, exception=e)
+        bot.send_message(chat_id, chat_options.ChatError.get_url, message_thread_id = thread_id)
         
 def bot_drop_playlist_for_supergroup(bot, global_options, chat_id, thread_id, chat_options, playlist_title: str):
     # Попытка удалить плейлист
@@ -50,13 +48,14 @@ def bot_drop_playlist_for_supergroup(bot, global_options, chat_id, thread_id, ch
         if playlist_id != '':
             drop_playlist(global_options.token, global_options.ya_usr_id, playlist_id)
             bot.send_message(chat_id, chat_options.Answ.delete_playlist, message_thread_id = thread_id)
-            log(global_options, chat_id, thread_id, log_message = 'drop playlist')
+            write_log('drop playlist', global_options, chat_id, thread_id)
         else:
+            write_log("feth no playlist", global_options, chat_id, thread_id, state='Warn')
             raise Exception("feth no playlist")
         
     # Ошибка при удалении плейлиста
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.nothing_to_del, e)
+        write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, thread_id=thread_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.nothing_to_del, message_thread_id = thread_id)
 
 def bot_create_playlist_for_supergroup(bot, global_options, chat_id, thread_id, chat_options, playlist_title: str):
@@ -66,18 +65,18 @@ def bot_create_playlist_for_supergroup(bot, global_options, chat_id, thread_id, 
             new_playlist_id = create_playlist(global_options.token, global_options.ya_usr_id, playlist_title)
             url = get_playlist_url(global_options.ya_usr_id, new_playlist_id)
             bot.send_message(chat_id, chat_options.Answ.create_playlist + url, message_thread_id = thread_id)
-            log(global_options, chat_id, thread_id, log_message = 'add playlist: ' + url)
+            write_log('add playlist: ' + url, global_options, chat_id, thread_id)
             
         # Если уже есть плейлист
         else:
             playlist_id = get_playlist_id_by_title(global_options.token, global_options.ya_usr_id, playlist_title)
             url = get_playlist_url(global_options.ya_usr_id, playlist_id)
             bot.send_message(chat_id, chat_options.ChatError.already_have_playlist + url, message_thread_id = thread_id)
-            log(global_options, chat_id, thread_id, log_message = 'already_have_playlist: ' + url)
+            write_log('already_have_playlist: ' + url, global_options, chat_id, thread_id, state='Warn')
     
     # Ошибка в создании плейлиста
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.create_playlist, e)
+        write_log(chat_options.ConsoleError.create_playlist, chat_id=chat_id, thread_id=thread_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.create_playlist, message_thread_id = thread_id)
         
 def bot_add_track_to_playlist_for_supergroup(bot, global_options, chat_id, thread_id, chat_options, playlist_title: str, message: str):
@@ -93,7 +92,7 @@ def bot_add_track_to_playlist_for_supergroup(bot, global_options, chat_id, threa
                 url = get_playlist_url(global_options.ya_usr_id, new_playlist_id)
                 add_track_to_playlist(global_options.token, global_options.ya_usr_id, new_playlist_id, album_id, track_id)
                 bot.send_message(chat_id, chat_options.Answ.no_playlist + url, message_thread_id = thread_id)
-                log(global_options, chat_id, thread_id, log_message = 'create playlist: ' + url)
+                write_log('create playlist: ' + url, global_options, chat_id, thread_id)
                 
             # Если есть плейлист
             else:
@@ -101,17 +100,17 @@ def bot_add_track_to_playlist_for_supergroup(bot, global_options, chat_id, threa
                 add_track_to_playlist(global_options.token, global_options.ya_usr_id, playlist_id, album_id, track_id)
                 url = get_playlist_url(global_options.ya_usr_id, playlist_id)
                 bot.send_message(chat_id, chat_options.Answ.add_track + url, message_thread_id = thread_id)
-                log(global_options, chat_id, thread_id, log_message = 'add track: ' + url)
+                write_log('add track: ' + url, global_options, chat_id, thread_id)
         
         # Неправильная ссылка
         else:
-            print(dttm(), chat_id, chat_options.ConsoleError.parse_link)
+            write_log(chat_options.ConsoleError.parse_link, chat_id=chat_id, thread_id=thread_id, state='Warn')
             bot.send_message(chat_id, chat_options.ChatError.parse_link, message_thread_id = thread_id)
             raise Exception("bad url")
             
     # Если возникла ошибка при добавлении трека
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.add_track, e)
+        write_log(chat_options.ConsoleError.add_track, chat_id=chat_id, thread_id=thread_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.add_track, message_thread_id = thread_id)
         
         
@@ -124,7 +123,7 @@ def bot_get_title_hash_all(bot, chat_id: str, chat_options) -> str:
         
     # Ошибка в генерации хеша    
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.hash_gen, e)
+        write_log(chat_options.ConsoleError.hash_gen, chat_id=chat_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.hash_gen)
         return -1
 
@@ -136,14 +135,15 @@ def bot_get_url(bot, global_options, chat_id, chat_options, playlist_title: str)
         if playlist_id != '':
             url = get_playlist_url(global_options.ya_usr_id, playlist_id)
             bot.send_message(chat_id, chat_options.Answ.get_url + url)
-            log(global_options, chat_id, log_message = 'get url: ' + url)
+            write_log('get url: ' + url, global_options, chat_id)
         else:
-            raise Exception("feth no playlist")
+            write_log(chat_options.ConsoleError.no_playlist, chat_id=chat_id, state='Warn')
+            bot.send_message(chat_id, chat_options.ChatError.no_playlist)
         
     # Ошибка нет плейлиста
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.no_playlist, e)
-        bot.send_message(chat_id, chat_options.ChatError.no_playlist)
+        write_log(chat_options.ConsoleError.get_url, chat_id=chat_id, exception=e)
+        bot.send_message(chat_id, chat_options.ChatError.get_url)
         
 def bot_drop_playlist(bot, global_options, chat_id, chat_options, playlist_title: str):
     # Попытка удалить плейлист
@@ -153,13 +153,14 @@ def bot_drop_playlist(bot, global_options, chat_id, chat_options, playlist_title
         if playlist_id != '':
             drop_playlist(global_options.token, global_options.ya_usr_id, playlist_id)
             bot.send_message(chat_id, chat_options.Answ.delete_playlist)
-            log(global_options, chat_id, log_message = 'drop playlist')
+            write_log('drop playlist', global_options, chat_id)
         else:
+            write_log("feth no playlist", global_options, chat_id, state='Warn')
             raise Exception("feth no playlist")
         
     # Ошибка при удалении плейлиста
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.nothing_to_del, e)
+        write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.nothing_to_del)
 
 def bot_create_playlist(bot, global_options, chat_id, chat_options, playlist_title: str):
@@ -169,17 +170,18 @@ def bot_create_playlist(bot, global_options, chat_id, chat_options, playlist_tit
             new_playlist_id = create_playlist(global_options.token, global_options.ya_usr_id, playlist_title)
             url = get_playlist_url(global_options.ya_usr_id, new_playlist_id)
             bot.send_message(chat_id, chat_options.Answ.create_playlist + url)
-            log(global_options, chat_id, log_message = 'add playlist: ' + url)
+            write_log('add playlist: ' + url, global_options, chat_id)
             
         # Если уже есть плейлист
         else:
             playlist_id = get_playlist_id_by_title(global_options.token, global_options.ya_usr_id, playlist_title)
             url = get_playlist_url(global_options.ya_usr_id, playlist_id)
-            bot.send_message(chat_id, chat_options.ChatError.already_have_playlist + url) 
-    
+            bot.send_message(chat_id, chat_options.ChatError.already_have_playlist + url)
+            write_log('already_have_playlist: ' + url, global_options, chat_id, state='Warn')
+
     # Ошибка в создании плейлиста
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.create_playlist, e)
+        write_log(chat_options.ConsoleError.create_playlist, chat_id=chat_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.create_playlist)
 
 def bot_add_track_to_playlist(bot, global_options, chat_id, chat_options, playlist_title: str, message: str):
@@ -195,7 +197,7 @@ def bot_add_track_to_playlist(bot, global_options, chat_id, chat_options, playli
                 url = get_playlist_url(global_options.ya_usr_id, new_playlist_id)
                 add_track_to_playlist(global_options.token, global_options.ya_usr_id, new_playlist_id, album_id, track_id)
                 bot.send_message(chat_id, chat_options.Answ.no_playlist + url)
-                log(global_options, chat_id, log_message = 'create playlist: ' + url)
+                write_log('create playlist: ' + url, global_options, chat_id)
                 
             # Если есть плейлист
             else:
@@ -203,15 +205,15 @@ def bot_add_track_to_playlist(bot, global_options, chat_id, chat_options, playli
                 add_track_to_playlist(global_options.token, global_options.ya_usr_id, playlist_id, album_id, track_id)
                 url = get_playlist_url(global_options.ya_usr_id, playlist_id)
                 bot.send_message(chat_id, chat_options.Answ.add_track + url)
-                log(global_options, chat_id, log_message = 'add track: ' + url)
+                write_log('add track: ' + url, global_options, chat_id)
         
         # Неправильная ссылка
         else:
-            print(dttm(), chat_id, chat_options.ConsoleError.parse_link)
+            write_log(chat_options.ConsoleError.parse_link, chat_id=chat_id, state='Warn')
             bot.send_message(chat_id, chat_options.ChatError.parse_link)
             raise Exception("bad url")
             
     # Если возникла ошибка при добавлении трека
     except Exception as e:
-        print(dttm(), chat_id, chat_options.ConsoleError.add_track, e)
+        write_log(chat_options.ConsoleError.add_track, chat_id=chat_id, exception=e)
         bot.send_message(chat_id, chat_options.ChatError.add_track)

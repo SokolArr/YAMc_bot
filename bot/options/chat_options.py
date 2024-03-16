@@ -1,18 +1,3 @@
-class GlobalOptions:
-    def __init__(self, token, ya_usr_id, tg_key, bot_tag, tg_admin_id = None, dev_mode = None):
-        self.token          = token
-        self.ya_usr_id      = ya_usr_id
-        self.tg_key         = tg_key
-        self.bot_tag        = bot_tag
-        self.tg_admin_id    = tg_admin_id
-        self.dev_mode       = dev_mode
-        
-    def print_prefs(self):
-        print(self.token, self.ya_usr_id, self.tg_key, self.bot_tag, self.tg_admin_id, self.dev_mode)
-        
-    def get_mode(self):
-        return self.dev_mode
-    
 class ChatOptions:
     class Greeting:
         main = "👋 Привет! Я могу сделать общий плейлист в Яндекс Музыке!\n Чтобы узнать как введи /help"
@@ -42,15 +27,17 @@ class ChatOptions:
         parse_link              = "🚫 Не могу прочитать ссылку, проверь корректность\n"
         get_group_info          = "🚫 Ошибка получения информации о группе\n"
         no_right_edit_topics    = "🚫 Боту необходимо выдать право редактировать топики!\n"
+        get_url                 = '🚫 Ошибка при попытке получить ссылку'
     
     class ConsoleError:
-        hash_gen        = '- ERROR to get hash:'
-        create_playlist = '- ERROR to create playlist:'
-        add_track       = '- ERROR add track:'
-        nothing_to_del  = '- ERROR nothing to delete:'
-        parse_link      = '- ERROR parse link:'
-        no_playlist     = '- ERROR no playlist fetch:'
-        get_group_info  = "- ERROR bad try to get group info"
+        hash_gen        = 'bad try to get hash'
+        create_playlist = 'bad try to create playlist'
+        add_track       = 'bad try add track'
+        nothing_to_del  = 'nothing to delete'
+        parse_link      = 'bad try parse link'
+        no_playlist     = 'no playlist fetch'
+        get_group_info  = "bad try to get group info"
+        get_url         = "no link fetch"
             
 PrivateChatOptions = ChatOptions
     

@@ -1,9 +1,6 @@
+from helpers.yam_link_parser    import *
+from helpers.utils.bot_logger   import *
 import requests
-from datetime import datetime
-from helpers.yam_link_parser import *
-
-def dttm() -> str:
-    return str(datetime.now()) + ' | '
 
 # Создать плейлист
 def create_playlist(token: str, ya_usr_id: str, title: str, visibility = 'public') -> str:

@@ -1,10 +1,11 @@
 from helpers.yam_api            import *
 from helpers.yam_link_parser    import *
 from helpers.bot_api            import *
-from options                    import *
-from creds                      import *
+from helpers.utils.bot_logger   import *
+from options.chat_options       import *
+from options.global_options     import GlobalOptions
+from creds                      import creds_ops
 
-import json
 import telebot
 import time
 
@@ -198,17 +199,16 @@ def get_text_messages(message):
 if __name__ == "__main__":
     while True:
         try:
-            print(dttm(), 'BOT STARTED','\n')
+            write_log('BOT STARTED')
             bot_time_start = time.mktime(datetime.now().timetuple())
             if(global_ops.tg_admin_id):bot.send_message(global_ops.tg_admin_id, 'Я ожил!')
             
             # Цикл жизни
             bot.polling()
             
-            print(dttm(), 'BOT DOWN','\n')
+            write_log('BOT DOWN', state='Error')
             if(global_ops.tg_admin_id):bot.send_message(global_ops.tg_admin_id, 'Я прилег!')
             
         except Exception as e:
-            if(global_ops.tg_admin_id):bot.send_message(global_ops.tg_admin_id, 'Я прилег!\n' + str(e))
-            print(dttm(), 'BOT DOWN','\n')
-            print(dttm(), e)
+            if(global_ops.tg_admin_id):bot.send_message(global_ops.tg_admin_id, 'Споткнулся об:\n' + str(e))
+            write_log('BOT DOWN WITH ERROR:', exception=e)
