@@ -28,10 +28,12 @@ class ChatOptions:
         get_group_info          = "🚫 Ошибка получения информации о группе\n"
         no_right_edit_topics    = "🚫 Боту необходимо выдать право редактировать топики!\n"
         get_url                 = '🚫 Ошибка при попытке получить ссылку'
+        drop_playlist           = '🚫 Ошибка при попытке удалить плейлист'
     
     class ConsoleError:
         hash_gen        = 'bad try to get hash'
         create_playlist = 'bad try to create playlist'
+        drop_playlist   = 'bad try to drop playlist'
         add_track       = 'bad try add track'
         nothing_to_del  = 'nothing to delete'
         parse_link      = 'bad try parse link'

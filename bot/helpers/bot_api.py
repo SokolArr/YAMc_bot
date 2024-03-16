@@ -51,11 +51,12 @@ def bot_drop_playlist_for_supergroup(bot, global_options, chat_id, thread_id, ch
             write_log('drop playlist', global_options, chat_id, thread_id)
         else:
             write_log("feth no playlist", global_options, chat_id, thread_id, state='Warn')
+            bot.send_message(chat_id, chat_options.ChatError.nothing_to_del, message_thread_id = thread_id)
                     
     # Ошибка при удалении плейлиста
     except Exception as e:
-        write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, thread_id=thread_id, exception=e)
-        bot.send_message(chat_id, chat_options.ChatError.nothing_to_del, message_thread_id = thread_id)
+        write_log(chat_options.ConsoleError.drop_playlist, chat_id=chat_id, thread_id=thread_id, exception=e)
+        bot.send_message(chat_id, chat_options.ChatError.drop_playlist, message_thread_id = thread_id)
 
 def bot_create_playlist_for_supergroup(bot, global_options, chat_id, thread_id, chat_options, playlist_title: str):
     try:        
@@ -155,11 +156,12 @@ def bot_drop_playlist(bot, global_options, chat_id, chat_options, playlist_title
             write_log('drop playlist', global_options, chat_id)
         else:
             write_log("feth no playlist", global_options, chat_id, state='Warn')
+            bot.send_message(chat_id, chat_options.ChatError.nothing_to_del)
                     
     # Ошибка при удалении плейлиста
     except Exception as e:
-        write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, exception=e)
-        bot.send_message(chat_id, chat_options.ChatError.nothing_to_del)
+        write_log(chat_options.ConsoleError.drop_playlist, chat_id=chat_id, exception=e)
+        bot.send_message(chat_id, chat_options.ChatError.drop_playlist)
 
 def bot_create_playlist(bot, global_options, chat_id, chat_options, playlist_title: str):
     try:        
