@@ -1,5 +1,5 @@
-from helpers.yam_link_parser    import *
-from helpers.utils.bot_logger   import *
+from helpers.utils.yam_link_parser      import *
+from helpers.utils.bot_logger           import *
 import requests
 
 # Создать плейлист
@@ -15,13 +15,13 @@ def create_playlist(token: str, ya_usr_id: str, title: str, visibility = 'public
         playlist_title = response['result']['title']
         playlist_id = response['result']['kind']
         if response['result']:
-            print(dttm(), ya_usr_id, 'created playlist', playlist_id, '"' + playlist_title + '"')
+            write_log("ya_usr_id: " + str(ya_usr_id)+ "; created playlist; playlist_id: " + str(playlist_id) + "; playlist_title: " + str(playlist_title))
             return str(response['result']['kind'])
         else:
-            print(dttm(), 'ERROR no response')
+            write_log('ERROR no response', state='Error')
             return -1
     except:
-        print(dttm(), 'ERROR no response')
+        write_log('ERROR no response', state='Error')
         return -1
     
     
@@ -35,13 +35,13 @@ def drop_playlist(token: str, ya_usr_id: str, playlist_id: str) -> str:
                                 ).json()
         result = response['result']
         if result:
-            print(dttm(), ya_usr_id, 'delete playlist', playlist_id)
+            write_log("ya_usr_id: " + str(ya_usr_id) + "; drop playlist; playlist_id: " + str(playlist_id))
             return playlist_id
         else:
-            print(dttm(), 'ERROR no response')
+            write_log('ERROR no response', state='Error')
             return -1
     except:
-        print(dttm(), 'ERROR no response')
+        write_log('ERROR no response', state='Error')
         return -1
 
 # Получить плейлисты
@@ -65,9 +65,10 @@ def get_playlists(token: str, ya_usr_id: str) -> list:
                 result_array.append(playlist)
             return result_array
         else:
+            write_log('ERROR no response', state='Error')
             return -1
     except:
-        print(dttm(), 'ERROR no response')
+        write_log('ERROR no response', state='Error')
         return -1
     
 # Если существует плейлист
@@ -122,10 +123,10 @@ def add_track_to_playlist(token: str, ya_usr_id: str, playlist_id: str, album_id
                                 data = payload
                                 ).json()
         if(response):
-            print(dttm(), ya_usr_id, 'add new track', track_id, 'from album', album_id, 'in playlist', playlist_id)
+            write_log("ya_usr_id: " + str(ya_usr_id)+ "; add new track; track_id: " + str(track_id) + "; album_id: " + str(album_id) +'; in playlist: '+ str(playlist_id))
             return 1
     except:
-        print(dttm(), 'ERROR no response')
+        write_log('ERROR no response', state='Error')
         return -1
     
 # Удалить трек из плейлиста
@@ -145,10 +146,10 @@ def delete_track_from_playlist(token: str, ya_usr_id: str, playlist_id: str, alb
                                 data = payload
                                 ).json()
         if(response):
-            print(dttm(), ya_usr_id, 'delete track', track_id, 'from album', album_id, 'in playlist', playlist_id)
+            write_log("ya_usr_id: " + str(ya_usr_id) + "; delete track track; track_id: " + str(track_id) + "; album_id: " + str(album_id) +'; from playlist: '+ str(playlist_id))
             return 1
     except:
-        print(dttm(), 'ERROR no response')
+        write_log('ERROR no response', state='Error')
         return -1
     
 def get_playlist_url(ya_usr_id: str, playlist_id: str) -> str:

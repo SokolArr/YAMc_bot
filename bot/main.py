@@ -1,5 +1,4 @@
 from helpers.yam_api            import *
-from helpers.yam_link_parser    import *
 from helpers.bot_api            import *
 from helpers.utils.bot_logger   import *
 from options.chat_options       import *

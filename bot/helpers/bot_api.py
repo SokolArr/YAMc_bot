@@ -1,6 +1,6 @@
-from helpers.yam_api            import *
-from helpers.yam_link_parser    import *
-from helpers.utils.bot_logger   import *
+from helpers.yam_api                    import *
+from helpers.utils.yam_link_parser      import *
+from helpers.utils.bot_logger           import *
 import hashlib
 
 def bot_get_hash(var) -> str:
@@ -51,8 +51,7 @@ def bot_drop_playlist_for_supergroup(bot, global_options, chat_id, thread_id, ch
             write_log('drop playlist', global_options, chat_id, thread_id)
         else:
             write_log("feth no playlist", global_options, chat_id, thread_id, state='Warn')
-            raise Exception("feth no playlist")
-        
+                    
     # Ошибка при удалении плейлиста
     except Exception as e:
         write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, thread_id=thread_id, exception=e)
@@ -156,8 +155,7 @@ def bot_drop_playlist(bot, global_options, chat_id, chat_options, playlist_title
             write_log('drop playlist', global_options, chat_id)
         else:
             write_log("feth no playlist", global_options, chat_id, state='Warn')
-            raise Exception("feth no playlist")
-        
+                    
     # Ошибка при удалении плейлиста
     except Exception as e:
         write_log(chat_options.ConsoleError.nothing_to_del, chat_id=chat_id, exception=e)
