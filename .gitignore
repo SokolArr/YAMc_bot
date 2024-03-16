@@ -1,7 +1,6 @@
 bot/helpers/__pycache__
 bot/__pycache__
 bot/creds.py
-bot/logs/*.*
 __pycache__
 .DS_Store
 .gitignore
