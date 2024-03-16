@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-FORMAT = '%(levelname)s: %(asctime)s: %(message)s'
+FORMAT = '%(asctime)s: %(levelname)s: %(message)s'
 logging.basicConfig(filename="bot/logs/main.log", level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
