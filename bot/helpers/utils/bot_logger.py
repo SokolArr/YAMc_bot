@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 
 FORMAT = '%(levelname)s: %(asctime)s: %(message)s'
-logging.basicConfig(filename="./logs/main.log", level=logging.INFO, format=FORMAT)
+logging.basicConfig(filename="./bot/logs/main.log", level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
 def dttm() -> str:
