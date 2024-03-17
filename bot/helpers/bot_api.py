@@ -15,8 +15,8 @@ def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options)
     try:
         if(thread_id):
             hash_chat_id = bot_get_hash(chat_id)
-            hash_thread_id = bot_get_hash(chat_id, 3)
-            return bot_concat_hash_title(hash_chat_id, '_' + hash_thread_id +' _t')
+            hash_thread_id = bot_get_hash(thread_id, 3)
+            return bot_concat_hash_title(hash_chat_id + '_' + hash_thread_id, ' _t')
         else:
             if(int(chat_id) > 0):
                 hash_chat_id = bot_get_hash(chat_id)
