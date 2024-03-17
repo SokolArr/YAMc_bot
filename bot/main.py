@@ -152,48 +152,27 @@ def start(message):
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.from_user.id
-        bot.send_message(chat_id, privat_chat_ops.Help.about_send, parse_mode= 'Markdown')
-        bot.send_message(chat_id, privat_chat_ops.Help.commands, parse_mode= 'Markdown')
+        bot.send_message(chat_id, 'ℹ️ Чтобы воспользоваться ботом и создать общий плейлист\n - *Cоздай группу* с теми с кем хочешь иметь *общий плейлист* 🎵 и *добавь* меня туда.', parse_mode= 'Markdown')
+        bot.send_message(chat_id, 'Для удобства - можешь *создать группу с темами* 🙂\n - В каждой теме будет создаваться свой собственный общий плейлист 🎵\n - Таким образом можно разделить общие плейлисты, например по жанрам музыки :)', parse_mode= 'Markdown')
+        bot.send_message(chat_id, 'ℹ️ Чтобы получить помощь по командам в группах введи там /help')
         
 @bot.message_handler(commands=['create_pl'], chat_types=['private'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
-        playlist_title = bot_get_title_hash_all(bot, chat_id, privat_chat_ops)
-        bot_create_playlist(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
+        bot.send_message(chat_id, "ℹ️ Чтобы СОЗДАТЬ общий плейлист 🎵 введи в ГРУППЕ: \n/create_pl")
         
 @bot.message_handler(commands=['drop_pl'], chat_types=['private'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
-        playlist_title = bot_get_title_hash_all(bot, chat_id, privat_chat_ops)
-        bot_drop_playlist(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
+        bot.send_message(chat_id, "ℹ️ Чтобы УДАЛИТЬ общий плейлист 🎵 введи в ГРУППЕ: \n/drop_pl")
 
 @bot.message_handler(commands=['link'], chat_types=['private'])
 def start(message):
     if message.date > bot_time_start:
         chat_id = message.chat.id
-        playlist_title = bot_get_title_hash_all(bot, chat_id, privat_chat_ops)
-        bot_get_url(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
-
-@bot.message_handler(content_types=['text'], chat_types=['private'])
-def get_text_messages(message):
-    if message.date > bot_time_start:
-        mes_txt = message.text
-        chat_id = message.from_user.id
-        playlist_title = bot_get_title_hash_all(bot, chat_id, privat_chat_ops)
-        
-        if(mes_txt.lower().find('дай ссылку') >= 0):
-            bot_get_url(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
-                
-        elif(mes_txt.lower().find('удали плейлист') >= 0):
-            bot_drop_playlist(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
-                
-        elif(mes_txt.lower().find('создай плейлист') >= 0):
-            bot_create_playlist(bot, global_ops, chat_id, privat_chat_ops, playlist_title)
-                
-        elif(mes_txt.lower().find('https') >= 0):
-            bot_add_track_to_playlist(bot, global_ops, chat_id, privat_chat_ops, playlist_title, mes_txt)        
+        bot.send_message(chat_id, "ℹ️ Чтобы ПОЛУЧИТЬ ССЫЛКУ 🔗 на общий плейлист введи в ГРУППЕ: \n/link")       
 
 if __name__ == "__main__":
     while True:
