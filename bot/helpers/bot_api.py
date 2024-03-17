@@ -3,8 +3,8 @@ from helpers.utils.yam_link_parser      import *
 from helpers.utils.bot_logger           import *
 import hashlib
 
-def bot_get_hash(var) -> str:
-    return hashlib.shake_256(str(var).encode('utf-8')).hexdigest(5)
+def bot_get_hash(var, len = 5) -> str:
+    return hashlib.shake_256(str(var).encode('utf-8')).hexdigest(len)
 
 def bot_concat_hash_title(var: str, postfix: str) -> str:
     return str(var + postfix)
@@ -13,8 +13,17 @@ def bot_concat_hash_title(var: str, postfix: str) -> str:
 def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options) -> str:
     # Попытка сгенерировать хеш
     try:
-        hash_title = bot_get_hash(chat_id)
-        return bot_concat_hash_title(hash_title, '_all')
+        if(thread_id):
+            hash_chat_id = bot_get_hash(chat_id)
+            hash_thread_id = bot_get_hash(chat_id, 3)
+            return bot_concat_hash_title(hash_chat_id, '_' + hash_thread_id +' _t')
+        else:
+            if(int(chat_id) > 0):
+                hash_chat_id = bot_get_hash(chat_id)
+                return bot_concat_hash_title(hash_chat_id, '_p')
+            else:
+                hash_chat_id = bot_get_hash(chat_id)
+                return bot_concat_hash_title(hash_chat_id, '_g')
         
     # Ошибка в генерации хеша    
     except Exception as e:
@@ -118,8 +127,12 @@ def bot_add_track_to_playlist_for_supergroup(bot, global_options, chat_id, threa
 def bot_get_title_hash_all(bot, chat_id: str, chat_options) -> str:
     # Попытка сгенерировать хеш
     try:
-        hash_title = bot_get_hash(chat_id)
-        return bot_concat_hash_title(hash_title, '_all')
+        if(int(chat_id) > 0):
+            hash_chat_id = bot_get_hash(chat_id)
+            return bot_concat_hash_title(hash_chat_id, '_p')
+        else:
+            hash_chat_id = bot_get_hash(chat_id)
+            return bot_concat_hash_title(hash_chat_id, '_g')
         
     # Ошибка в генерации хеша    
     except Exception as e:
