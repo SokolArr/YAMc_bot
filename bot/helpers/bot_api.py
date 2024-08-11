@@ -3,12 +3,16 @@ from helpers.utils.yam_link_parser      import *
 from helpers.utils.bot_logger           import *
 import hashlib
 
-def bot_get_hash(var, len = 5) -> str:
+def bot_get_hash(var, len = 3) -> str:
     return hashlib.shake_256(str(var).encode('utf-8')).hexdigest(len)
 
-def bot_concat_hash_title(var: str, postfix: str) -> str:
-    return str(var + postfix)
+def bot_concat_hash_title(var: str, postfix: str, chat_name: str = '') -> str:
+    return str((f'{chat_name}_' if chat_name != '' else '') + var + postfix)
         
+def get_chat_name(bot, chat_id, char_len: int = 10):
+    chat_name = bot.get_chat(chat_id).title[:char_len].strip()
+    return chat_name
+    
 # Для супергрупп
 def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options) -> str:
     # Попытка сгенерировать хеш
@@ -16,14 +20,14 @@ def bot_get_title_hash_all_for_supergroup(bot, chat_id, thread_id, chat_options)
         if(thread_id):
             hash_chat_id = bot_get_hash(chat_id)
             hash_thread_id = bot_get_hash(thread_id, 3)
-            return bot_concat_hash_title(hash_chat_id + '_' + hash_thread_id, ' _t')
+            return bot_concat_hash_title(hash_chat_id + '_' + hash_thread_id, '_t', chat_name=get_chat_name(bot, chat_id))
         else:
             if(int(chat_id) > 0):
                 hash_chat_id = bot_get_hash(chat_id)
-                return bot_concat_hash_title(hash_chat_id, '_p')
+                return bot_concat_hash_title(hash_chat_id, '_p', chat_name=get_chat_name(bot, chat_id))
             else:
                 hash_chat_id = bot_get_hash(chat_id)
-                return bot_concat_hash_title(hash_chat_id, '_g')
+                return bot_concat_hash_title(hash_chat_id, '_g', chat_name=get_chat_name(bot, chat_id))
         
     # Ошибка в генерации хеша    
     except Exception as e:
@@ -129,10 +133,10 @@ def bot_get_title_hash_all(bot, chat_id: str, chat_options) -> str:
     try:
         if(int(chat_id) > 0):
             hash_chat_id = bot_get_hash(chat_id)
-            return bot_concat_hash_title(hash_chat_id, '_p')
+            return bot_concat_hash_title(hash_chat_id, '_p', chat_name=get_chat_name(bot, chat_id))
         else:
             hash_chat_id = bot_get_hash(chat_id)
-            return bot_concat_hash_title(hash_chat_id, '_g')
+            return bot_concat_hash_title(hash_chat_id, '_g', chat_name=get_chat_name(bot, chat_id))
         
     # Ошибка в генерации хеша    
     except Exception as e:
